@@ -55,6 +55,7 @@ function Square(props) {
       this.state = {
         history: [{
           squares: Array(9).fill(null),
+          playedSquare: null,
         }],
         isnext: true,
         stepNumber: 0,
@@ -62,9 +63,9 @@ function Square(props) {
     }
 
     handleclick(i) {
-
       const history = this.state.history.slice(0,this.state.stepNumber+1);
       const current = history[history.length-1];
+      const coordinate = getSquareCoordinates(i);
       const squares  = current.squares.slice();
  
       if(calculateWinner(squares) || squares[i]) {
@@ -74,7 +75,8 @@ function Square(props) {
       squares[i] = this.state.xIsNext ? 'X' : 'O';
       this.setState({
         history: history.concat([{
-          squares: squares
+          squares: squares,
+          playedSquare: coordinate
         }]),
         stepNumber: history.length,
         xIsNext: !this.state.xIsNext
@@ -94,15 +96,17 @@ function Square(props) {
       const history = this.state.history;
       const current = history[this.state.stepNumber];
       const winner = calculateWinner(current.squares)
-
       const moves = history.map((step, move) => { 
         const desc = move ?
           'Go to move #' + move :
           'Go to game start';
-
           return (
             <li key={move}>
               <button onClick={() => this.jumpTo(move)}>{desc}</button>
+              { move!==0
+              ?  <span>(Row: {history[move].playedSquare.row} Col: {history[move].playedSquare.col}</span>
+              : ''
+              }
             </li>
           )
       } )
@@ -155,4 +159,16 @@ function Square(props) {
       }
     }
     return null;
+  }
+
+  function getSquareCoordinates (squareNumber) {
+    const col =squareNumber%3;
+    const row =  Math.floor(squareNumber/3);
+
+    let coordinates =  {
+      col: col+1,
+      row: row+1,
+    };
+
+    return coordinates;
   }
